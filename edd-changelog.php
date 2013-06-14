@@ -390,9 +390,8 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 						esc_html( $changelog )
 					);
 
+				$instance++;
 			}
-
-			$instance++;
 
 			return $html;
 		}
