@@ -78,8 +78,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 			// Nothing to translate presently.
 			// load_plugin_textdomain( 'eddclog' , FALSE , EDDCLOG_DIR_NAME . 'languages' );
 
-			// If EDD Software Licensing plugin isn't installed,
-			// then add the Changelog metabox.
+			// If EDD Software Licensing plugin isn't installed, then add the Changelog metabox.
 			if ( ! class_exists( 'EDD_Software_Licensing' ) ) {
 
 				add_action( 'add_meta_boxes', array( __CLASS__, 'edd_sl_add_license_meta_box' ), 100 );
@@ -87,9 +86,13 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 			}
 
-			add_action( 'edd_meta_box_fields', array( __CLASS__, 'edd_render_disable_button' ), 40 );
+			add_action( 'edd_meta_box_fields', array( __CLASS__, 'render_disable_checkbox' ), 40 );
 
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueueScripts' ) );
+
+			add_action( 'edd_after_download_content', array( __CLASS__, 'append_changelog' ), 100 );
+
+			add_shortcode( 'edd_download_changelog', array( __CLASS__, 'shortcode' ) );
 		}
 
 		/**
@@ -136,14 +139,14 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 * @param int $post_id Download (Post) ID
 		 * @return void
 		 */
-		public static function edd_render_disable_button( $post_id ) {
+		public static function render_disable_checkbox( $post_id ) {
 
 			$hide_button = get_post_meta( $post_id, '_edd_hide_changelog', TRUE ) ? TRUE : FALSE;
 
 			echo '<p><strong>' . __( 'Change Log:', 'eddclog' ) . '</strong></p>';
 			echo '<p>';
 				echo '<label for="_edd_hide_changelog">';
-					echo '<input type="checkbox" name="_edd_hide_changelog" id="_edd_hide_changelog" value="1"' . checked( TRUE, $hide_button ) . '/> ';
+					echo '<input type="checkbox" name="_edd_hide_changelog" id="_edd_hide_changelog" value="1"' , checked( TRUE, $hide_button ) , '/> ';
 					_e( 'Disable the automatic output of the change log.', 'eddclog' );
 				echo '</label>';
 			echo '</p>';
@@ -195,8 +198,10 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 				$file      	= get_post_meta( $post->ID, '_edd_sl_upgrade_file_key', true );
 				$display   	= $enabled ? '' : ' style="display:none;"';
 
+				// No need for this --> Adapted by saz
 				// echo '<script type="text/javascript">jQuery( document ).ready( function($) {$( "#edd_license_enabled" ).on( "click",function() {$( ".edd_sl_toggled_row" ).toggle();} )} );</script>';
 
+				// Hide this. --> Adapted by saz
 				echo '<tr' . $display . ' class="edd_sl_toggled_row">';
 					echo '<td class="edd_field_type_text" colspan="2">';
 						echo '<input type="checkbox" name="edd_license_enabled" id="edd_license_enabled" value="1" ' . checked( true, $enabled, false ) . '/>&nbsp;';
@@ -233,6 +238,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 					echo '<td>';
 				echo '</tr>';
 
+				//  Show this --> Adapted by saz
 				echo '<tr>';
 					echo '<td class="edd_field_type_textarea" colspan="2">';
 						echo '<label for="edd_sl_changelog">' . __( 'Change Log', 'edd_sl' ) . '</label><br/>';
@@ -306,6 +312,44 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 				update_post_meta( $post_id, '_edd_sl_changelog', addslashes( $_POST['edd_sl_changelog'] ) ) ;
 			} else {
 				delete_post_meta( $post_id, '_edd_sl_changelog' );
+			}
+
+			// Save the hide changelog option. --> Adapted by saz
+			if ( isset( $_POST['_edd_hide_changelog'] ) ) {
+				update_post_meta( $post_id, '_edd_hide_changelog', true );
+			} else {
+				delete_post_meta( $post_id, '_edd_hide_changelog' );
+			}
+
+		}
+
+		public static function append_changelog( $download_id ) {
+
+			$show_changelog = get_post_meta( $download_id, '_edd_hide_changelog', TRUE ) ? FALSE : TRUE;
+
+			if ( $show_changelog ) {
+
+				echo self::shortcode( array( 'id' => $download_id ) );
+
+			}
+
+		}
+
+		public static function shortcode( $atts, $content = NULL, $tag = 'edd_changelog' ) {
+			global $post;
+
+			$defaults = array(
+				'id' => $post->ID
+			);
+
+			$atts = shortcode_atts( $defaults, $atts, $tag );
+
+			$changelog = get_post_meta( $atts['id'], '_edd_sl_changelog', TRUE );
+
+			if ( ! empty( $changelog ) ) {
+
+				return esc_html( $changelog );
+
 			}
 
 		}
