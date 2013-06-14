@@ -88,11 +88,13 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 			add_action( 'edd_meta_box_fields', array( __CLASS__, 'render_disable_checkbox' ), 40 );
 
-			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueueScripts' ) );
+			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 
 			add_action( 'edd_after_download_content', array( __CLASS__, 'append_changelog' ), 100 );
 
-			add_shortcode( 'edd_download_changelog', array( __CLASS__, 'shortcode' ) );
+			add_shortcode( 'edd_changelog', array( __CLASS__, 'shortcode' ) );
+
+			add_action( 'wp_footer', array( __CLASS__, 'inline_js' ) );
 		}
 
 		/**
@@ -126,8 +128,8 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 * @since 1.0
 		 * @return void
 		 */
-		public static function enqueueScripts() {
-
+		public static function enqueue_scripts() {
+			wp_enqueue_script( 'jquery' );
 		}
 
 		/**
@@ -323,6 +325,13 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 		}
 
+		/**
+		 * Append the changelog to the end of the download page.
+		 *
+		 * @access private
+		 * @since 1.0
+		 * @return void
+		 */
 		public static function append_changelog( $download_id ) {
 
 			$show_changelog = get_post_meta( $download_id, '_edd_hide_changelog', TRUE ) ? FALSE : TRUE;
@@ -335,23 +344,72 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 		}
 
+		/**
+		 * The [edd_changelog] shortcode.
+		 *
+		 * @access public
+		 * @since 1.0
+		 * @return string
+		 */
 		public static function shortcode( $atts, $content = NULL, $tag = 'edd_changelog' ) {
-			global $post;
+			$html = '';
+			$style = '';
+			static $instance = 1;
 
 			$defaults = array(
-				'id' => $post->ID
-			);
+					'id' => get_the_id(),
+					'toggle' => 'yes',
+					'show' => 'Show Change Log',
+					'hide' => 'Hide Change Log'
+				);
 
 			$atts = shortcode_atts( $defaults, $atts, $tag );
+
+			$atts['toggle'] = strtolower( $atts['toggle'] );
 
 			$changelog = get_post_meta( $atts['id'], '_edd_sl_changelog', TRUE );
 
 			if ( ! empty( $changelog ) ) {
 
-				return esc_html( $changelog );
+				if ( 'yes' === strtolower( $atts['toggle'] ) ) {
+
+					$html .= sprintf( '<div class="edd_changelog-toggle"><span onclick="eddclog_toggle(\'%1$d\', \'%2$s\', \'%3$s\');"><span id="edd_changelog_toggle-%1$d">%2$s</span></span></div>',
+							$instance,
+							esc_js( $atts['show'] ),
+							esc_js( $atts['hide'] )
+						);
+
+
+					$style = ' style="display: none;"';
+
+				}
+
+				$html .= sprintf( '<div id="edd_changelog_content-%1$d" class="edd_changelog-content"%2$s>%3$s</div>',
+						$instance,
+						$style,
+						esc_html( $changelog )
+					);
 
 			}
 
+			$instance++;
+
+			return $html;
+		}
+
+		/**
+		 * The inline toggle JS.
+		 *
+		 * @access private
+		 * @since 1.0
+		 * @return string
+		 */
+		public static function inline_js() {
+			echo '<script type="text/javascript">'."\n";
+			echo '/* <![CDATA[ */'."\n";
+			echo 'if ( undefined !== window.jQuery ) { function eddclog_toggle(a,b,c) { jQuery( "#edd_changelog_content-" + a ).toggle(); jQuery("#edd_changelog_toggle-" + a ).text( jQuery("#edd_changelog_toggle-" + a ).text() == b ? c : b ) }; }'."\n";
+			echo '/* ]]> */'."\n";
+			echo '</script>'."\n";
 		}
 
 	}
