@@ -73,7 +73,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		private function init() {
 
 			self::defineConstants();
-			self::inludeDependencies();
+			// self::inludeDependencies();
 
 			// Nothing to translate presently.
 			// load_plugin_textdomain( 'eddclog' , FALSE , EDDCLOG_DIR_NAME . 'languages' );
@@ -91,6 +91,8 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 
 			add_action( 'edd_after_download_content', array( __CLASS__, 'append_changelog' ), 100 );
+
+			add_action( 'admin_print_footer_scripts' , array( __CLASS__ , 'quicktag_js' ) );
 
 			add_shortcode( 'edd_changelog', array( __CLASS__, 'shortcode' ) );
 
@@ -129,7 +131,13 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 * @return void
 		 */
 		public static function enqueue_scripts() {
+
+			// If SCRIPT_DEBUG is set and TRUE load the non-minified CSS files, otherwise, load the minified files.
+			$min = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
+
 			wp_enqueue_script( 'jquery' );
+			wp_enqueue_style( 'edd-changelog', EDDCLOG_BASE_URL . "edd-changelog$min.css", array(), EDDCLOG_VERSION );
+			wp_enqueue_style( 'genericons', EDDCLOG_BASE_URL . "lib/genericons$min.css", array(), '2.06' );
 		}
 
 		/**
@@ -198,7 +206,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 				$version   	= get_post_meta( $post->ID, '_edd_sl_version', true );
 				$changelog 	= get_post_meta( $post->ID, '_edd_sl_changelog', true );
 				$file      	= get_post_meta( $post->ID, '_edd_sl_upgrade_file_key', true );
-				$display   	= $enabled ? '' : ' style="display:none;"';
+				$display   	= FALSE ? '' : ' style="display:none;"'; // Always display none. --> Adapted by saz
 
 				// No need for this --> Adapted by saz
 				// echo '<script type="text/javascript">jQuery( document ).ready( function($) {$( "#edd_license_enabled" ).on( "click",function() {$( ".edd_sl_toggled_row" ).toggle();} )} );</script>';
@@ -326,6 +334,28 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		}
 
 		/**
+		 * Outputs the JS necessary to support the quicktag for the changelog text area field..
+		 *
+		 * @author Steven A. Zahm
+		 * @access private
+		 * @since 0.7.3.0
+		 * @return void
+		 */
+		public static function quicktag_js() {
+
+			$screen = get_current_screen();
+
+			if ( 'download' == $screen->id ) {
+
+				echo '<script type="text/javascript">/* <![CDATA[ */';
+					echo 'quicktags("edd_sl_changelog");';
+				echo '/* ]]> */</script>';
+
+			}
+
+		}
+
+		/**
 		 * Append the changelog to the end of the download page.
 		 *
 		 * @access private
@@ -369,16 +399,20 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 			$changelog = get_post_meta( $atts['id'], '_edd_sl_changelog', TRUE );
 
+			//  Sanitize the HTML from the change log field.
+			$changelog = balanceTags( wp_kses_post( $changelog ), TRUE );
+
 			if ( ! empty( $changelog ) ) {
 
 				if ( 'yes' === strtolower( $atts['toggle'] ) ) {
 
-					$html .= sprintf( '<div class="edd_changelog-toggle"><span onclick="eddclog_toggle(\'%1$d\', \'%2$s\', \'%3$s\');"><span id="edd_changelog_toggle-%1$d">%2$s</span></span></div>',
+					$html .= '<div class="edd_changelog-container">';
+
+					$html .= sprintf( '<span class="edd_changelog-toggle-container" onclick="eddclog_toggle(\'%1$d\', \'%2$s\', \'%3$s\');"><span id="edd_changelog_toggle-%1$d" class="edd_changelog-toggle">%2$s</span><span id="edd_changelog-icon-%1$s" class="edd_changelog-icon"></span></span>',
 							$instance,
 							esc_js( $atts['show'] ),
 							esc_js( $atts['hide'] )
 						);
-
 
 					$style = ' style="display: none;"';
 
@@ -387,8 +421,10 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 				$html .= sprintf( '<div id="edd_changelog_content-%1$d" class="edd_changelog-content"%2$s>%3$s</div>',
 						$instance,
 						$style,
-						esc_html( $changelog )
+						$changelog
 					);
+
+				if ( 'yes' === strtolower( $atts['toggle'] ) ) $html .= '</div>';
 
 				$instance++;
 			}
@@ -406,7 +442,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		public static function inline_js() {
 			echo '<script type="text/javascript">'."\n";
 			echo '/* <![CDATA[ */'."\n";
-			echo 'if ( undefined !== window.jQuery ) { function eddclog_toggle(a,b,c) { jQuery( "#edd_changelog_content-" + a ).toggle(); jQuery("#edd_changelog_toggle-" + a ).text( jQuery("#edd_changelog_toggle-" + a ).text() == b ? c : b ) }; }'."\n";
+			echo 'if ( undefined !== window.jQuery ) { function eddclog_toggle(a,b,c) { jQuery( "#edd_changelog_content-" + a ).slideToggle("slow"); jQuery("#edd_changelog_toggle-" + a ).text( jQuery("#edd_changelog_toggle-" + a ).text() == b ? c : b ); jQuery("#edd_changelog-icon-" + a ).toggleClass( "edd_changelog-icon-down" ); } }'."\n";
 			echo '/* ]]> */'."\n";
 			echo '</script>'."\n";
 		}
