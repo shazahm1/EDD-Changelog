@@ -75,8 +75,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 			self::defineConstants();
 			// self::inludeDependencies();
 
-			// Nothing to translate presently.
-			// load_plugin_textdomain( 'eddclog' , FALSE , EDDCLOG_DIR_NAME . 'languages' );
+			load_plugin_textdomain( 'eddclog' , FALSE , EDDCLOG_DIR_NAME . 'languages' );
 
 			// If EDD Software Licensing plugin isn't installed, then add the Changelog metabox.
 			if ( ! class_exists( 'EDD_Software_Licensing' ) ) {
@@ -92,7 +91,9 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 			add_action( 'edd_after_download_content', array( __CLASS__, 'append_changelog' ), 100 );
 
-			add_action( 'admin_print_footer_scripts' , array( __CLASS__ , 'quicktag_js' ) );
+			add_action( 'admin_print_footer_scripts', array( __CLASS__ , 'quicktag_js' ) );
+
+			add_action( 'edd_receipt_files', array( __CLASS__ , 'receipt' ), 10, 5 );
 
 			add_shortcode( 'edd_changelog', array( __CLASS__, 'shortcode' ) );
 
@@ -226,7 +227,8 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 					echo '<td>';
 				echo '</tr>';
 
-				echo '<tr' . $display . ' class="edd_sl_toggled_row">';
+				//  Show this --> Adapted by saz
+				echo '<tr>';
 					echo '<td class="edd_field_type_text" colspan="2">';
 						echo '<input type="text" name="edd_sl_version" id="edd_sl_version" value="' . esc_attr( $version ) . '"/><br/>';
 						echo __( 'Enter the current version number', 'edd_sl' );
@@ -430,6 +432,45 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 			}
 
 			return $html;
+		}
+
+		/**
+		 * Add the current version and link to the changelog popup to the purchase history receipt.
+		 *
+		 * @access private
+		 * @since 1.0
+		 * @return void
+		 */
+		public static function receipt( $filekey, $file, $item_ID, $payment_ID, $meta ) {
+			static $instance = 1;
+			$version = get_post_meta( $item_ID, '_edd_sl_version', TRUE );
+			$changelog = get_post_meta( $item_ID, '_edd_sl_changelog', TRUE );
+
+			if ( ! empty( $version ) )
+				printf( '<li class="edd_download_version"><strong>%1$s</strong> %2$s</li>',
+					__( 'Current Version:', 'eddclog' ),
+					esc_html( $version )
+				);
+
+			if ( ! empty( $changelog ) ) {
+
+				wp_enqueue_style('thickbox');
+				wp_enqueue_script('thickbox');
+
+				printf( '<li class="edd_download_changlog"><a class="thickbox" href="#TB_inline?height=500&amp;width=400&amp;inlineId=edd_download_changlog-%3$d" title="%2$s">%1$s</a></li>',
+					__( 'View Change Log', 'eddclog' ),
+					__( 'Change Log', 'edd_sl' ),
+					absint( $instance )
+				);
+
+				printf( '<li id="edd_download_changlog-%1$d" style="display:none">%2$s</li>',
+					absint( $instance ),
+					balanceTags( wp_kses_post( $changelog ), TRUE )
+				);
+
+				$instance++;
+
+			}
 		}
 
 		/**
