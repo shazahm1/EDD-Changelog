@@ -2,9 +2,10 @@
 Contributors: shazahm1@hotmail.com
 Donate link: http://connections-pro.com/
 Tags: edd, easy digital downloads
-Requires at least: 3.3
-Tested up to: 3.6
-Stable tag: 1.0License: GPLv2 or later
+Requires at least: 3.8
+Tested up to: 4.0
+Stable tag: 1.1
+License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Add a new metabox to the download where you can input the changelog. The changelog will be appended to the download page and the purchase history.
 
@@ -42,6 +43,10 @@ None at this time.
 None at this time.
  
 == Changelog ==
+
+= 1.1 10/02/2014 =
+* FEATURE: Add the current version to the download history shortcode output.
+* BUG: Fix the double output of the quicktags in the changelog field.
 
 = 1.0 6/26/2013 =
 * Initial Release.

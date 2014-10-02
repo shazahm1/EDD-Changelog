@@ -3,7 +3,7 @@
 Plugin Name: EDD Changelog
 Plugin URI: http://www.connections-pro.com
 Description: Adds a changelog meta box to the downloads post type.
-Version: 1.0
+Version: 1.1
 Author: Steven A. Zahm
 Author URI: http://www.connections-pro.com
 License: GPL2
@@ -91,9 +91,13 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 			add_action( 'edd_after_download_content', array( __CLASS__, 'append_changelog' ), 100 );
 
-			add_action( 'admin_print_footer_scripts', array( __CLASS__ , 'quicktag_js' ) );
+			// add_action( 'admin_print_footer_scripts', array( __CLASS__ , 'quicktag_js' ) );
 
 			add_action( 'edd_receipt_files', array( __CLASS__ , 'receipt' ), 10, 5 );
+
+			add_action( 'edd_download_history_header_end', array( __CLASS__ , 'download_history_head' ) );
+
+			add_action( 'edd_download_history_row_end', array( __CLASS__ , 'download_history' ), 10, 2 );
 
 			add_shortcode( 'edd_changelog', array( __CLASS__, 'shortcode' ) );
 
@@ -109,7 +113,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 */
 		private static function defineConstants() {
 
-			define( 'EDDCLOG_VERSION', '1.0' );
+			define( 'EDDCLOG_VERSION', '1.1' );
 
 			define( 'EDDCLOG_DIR_NAME', plugin_basename( dirname( __FILE__ ) ) );
 			define( 'EDDCLOG_BASE_NAME', plugin_basename( __FILE__ ) );
@@ -471,6 +475,57 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 				$instance++;
 
 			}
+		}
+
+		/**
+		 * Append the Version table header to the download history shortcode output.
+		 *
+		 * @access private
+		 * @since  1.1
+		 * @static
+		 * @return string
+		 */
+		public static function download_history_head() {
+
+			?>
+
+			<th class="edd_download_download_version">
+
+			<?php
+
+				_e( 'Current Version', 'eddclog' );
+
+			?>
+
+			</th>
+
+			<?php
+		}
+
+		/**
+		 * the current version to the Version column in the  download history shortcode output.
+		 *
+		 * @access private
+		 * @since  1.1
+		 * @static
+		 * @return string
+		 */
+		public static function download_history( $payment_id, $download_id ) {
+
+			?>
+
+			<td class="edd_download_changlog">
+
+			<?php
+
+				$version = get_post_meta( $download_id, '_edd_sl_version', TRUE );
+				echo esc_attr( $version );
+
+			?>
+
+			</td>
+
+			<?php
 		}
 
 		/**
