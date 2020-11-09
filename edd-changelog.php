@@ -273,8 +273,6 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 */
 		public static function edd_sl_download_meta_box_save( $post_id ) {
 
-			global $post;
-
 			// Verify nonce.
 			if ( isset( $_POST['edd_sl_meta_box_nonce'] ) && ! wp_verify_nonce( $_POST['edd_sl_meta_box_nonce'], basename( __FILE__ ) ) ) {
 				return;
