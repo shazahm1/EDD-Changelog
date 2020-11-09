@@ -275,12 +275,12 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 			global $post;
 
-			// verify nonce
+			// Verify nonce.
 			if ( isset( $_POST['edd_sl_meta_box_nonce'] ) && ! wp_verify_nonce( $_POST['edd_sl_meta_box_nonce'], basename( __FILE__ ) ) ) {
 				return $post_id;
 			}
 
-			// check autosave
+			// Check auto-save.
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 				return $post_id;
 			}
