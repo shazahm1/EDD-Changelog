@@ -83,7 +83,6 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 				add_action( 'add_meta_boxes', array( __CLASS__, 'edd_sl_add_license_meta_box' ), 100 );
 				add_action( 'save_post', array( __CLASS__, 'edd_sl_download_meta_box_save' ) );
-
 			}
 
 			add_action( 'edd_meta_box_fields', array( __CLASS__, 'render_disable_checkbox' ), 40 );
