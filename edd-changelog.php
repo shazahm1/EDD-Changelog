@@ -197,7 +197,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 * @version 1.6
 		 * @since 1.0
 		 */
-		public static function edd_sl_render_licenses_meta_box()	{
+		public static function edd_sl_render_licenses_meta_box() {
 
 			global $post;
 			// Use nonce for verification
