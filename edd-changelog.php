@@ -395,10 +395,11 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 			$changelog = get_post_meta( $atts['id'], '_edd_sl_changelog', TRUE );
 
-			//  Sanitize the HTML from the change log field.
-			$changelog = balanceTags( wp_kses_post( $changelog ), TRUE );
-
 			if ( ! empty( $changelog ) ) {
+
+				//  Sanitize the HTML from the change log field.
+				$changelog = balanceTags( wp_kses_post( wp_unslash($changelog ) ), TRUE );
+				$changelog = wpautop( wptexturize(  $changelog ) );
 
 				if ( 'yes' === strtolower( $atts['toggle'] ) ) {
 
