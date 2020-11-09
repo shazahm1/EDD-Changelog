@@ -50,7 +50,8 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 *
 		 * @access public
 		 * @since 1.0
-		 * @return (object) EDD_Changelog
+		 *
+		 * @return EDD_Changelog
 		 */
 		public static function getInstance() {
 
