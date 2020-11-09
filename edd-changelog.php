@@ -122,11 +122,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 		}
 
-		private static function inludeDependencies() {
-
-
-
-		}
+		//private static function inludeDependencies() {}
 
 		/**
 		 * Enqueue the CSS and JavaScripts.
