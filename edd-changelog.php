@@ -176,10 +176,10 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 */
 		public static function edd_sl_add_license_meta_box() {
 
+			if ( 'bundle' != edd_get_download_type( get_the_ID() ) ) {
 
-			if ( 'bundle' != edd_get_download_type( get_the_ID() ) )
 				add_meta_box( 'edd_sl_box', __( 'Change Log', 'edd_sl' ), array( __CLASS__, 'edd_sl_render_licenses_meta_box'), 'download', 'side', 'core' );
-
+			}
 		}
 
 
