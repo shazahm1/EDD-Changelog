@@ -316,7 +316,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 			}
 
 			if ( isset( $_POST['edd_sl_changelog'] ) ) {
-				update_post_meta( $post_id, '_edd_sl_changelog', addslashes( $_POST['edd_sl_changelog'] ) ) ;
+				update_post_meta( $post_id, '_edd_sl_changelog', addslashes( $_POST['edd_sl_changelog'] ) );
 			} else {
 				delete_post_meta( $post_id, '_edd_sl_changelog' );
 			}
