@@ -196,7 +196,6 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 * @author Pippin Williamson
 		 * @version 1.6
 		 * @since 1.0
-		 * @return void
 		 */
 		public static function edd_sl_render_licenses_meta_box()	{
 
