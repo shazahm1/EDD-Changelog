@@ -270,7 +270,6 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		 * @author Pippin Williamson
 		 * @version 1.6
 		 * @since 1.0
-		 * @return void
 		 */
 		public static function edd_sl_download_meta_box_save( $post_id ) {
 
@@ -377,7 +376,6 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		/**
 		 * The [edd_changelog] shortcode.
 		 *
-		 * @access public
 		 * @since 1.0
 		 * @return string
 		 */
@@ -435,9 +433,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		/**
 		 * Add the current version and link to the changelog popup to the purchase history receipt.
 		 *
-		 * @access private
 		 * @since 1.0
-		 * @return void
 		 */
 		public static function receipt( $filekey, $file, $item_ID, $payment_ID, $meta ) {
 			static $instance = 1;
@@ -474,10 +470,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		/**
 		 * Append the Version table header to the download history shortcode output.
 		 *
-		 * @access private
 		 * @since  1.1
-		 * @static
-		 * @return string
 		 */
 		public static function download_history_head() {
 
@@ -499,10 +492,7 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 		/**
 		 * the current version to the Version column in the  download history shortcode output.
 		 *
-		 * @access private
 		 * @since  1.1
-		 * @static
-		 * @return string
 		 */
 		public static function download_history( $payment_id, $download_id ) {
 
