@@ -277,20 +277,20 @@ if ( ! class_exists( 'EDD_Changelog' ) ) {
 
 			// Verify nonce.
 			if ( isset( $_POST['edd_sl_meta_box_nonce'] ) && ! wp_verify_nonce( $_POST['edd_sl_meta_box_nonce'], basename( __FILE__ ) ) ) {
-				return $post_id;
+				return;
 			}
 
 			// Check auto-save.
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-				return $post_id;
+				return;
 			}
 
 			if ( isset( $_POST['post_type'] ) && 'download' != $_POST['post_type'] ) {
-				return $post_id;
+				return;
 			}
 
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
-				return $post_id;
+				return;
 			}
 
 			if ( isset( $_POST['edd_license_enabled'] ) ) {
